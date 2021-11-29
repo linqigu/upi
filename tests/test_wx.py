@@ -8,8 +8,8 @@
 """
 import unittest
 
-from src.util.tool import get_order_no
-from src.pay.wxpay import wxPay as wxPay
+from upi import wxPay
+from upi.util.tool import get_order_no
 
 
 class test_wx_pay(unittest.TestCase):  # 继承unittest.TestCase
@@ -26,7 +26,7 @@ class test_wx_pay(unittest.TestCase):  # 继承unittest.TestCase
             mch_id=mch_id,
             mch_key=mch_key,
             notify_url=notify_url,
-            logger_echo=False
+            logger_echo=True
         )
 
     def test_js_pay(self):
@@ -59,7 +59,6 @@ class test_wx_pay(unittest.TestCase):  # 继承unittest.TestCase
     def test_native_pay(self):
         print('test_native_pay')
         order_no = get_order_no()
-        print(order_no)
         fee = 1
         body = '支付详情说明'
         res = self.pay.native_pay(
