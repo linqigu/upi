@@ -6,7 +6,7 @@
 @time: 2021/9/13 22:52
 @desc: 
 """
-__version__ = '0.0.7'
+__version__ = '0.0.9'
 
 from .pay.wxpay import wxPay
 

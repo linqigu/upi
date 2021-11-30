@@ -74,16 +74,17 @@ class wxPay(object):
         :param pay_host:  调用接口地址 默认 https://api.mch.weixin.qq.com
         :param logger_echo: 是否输出日志 True False  默认False
         """
-        self.app_id = app_id
-        self.mch_id = mch_id
-        self.sub_app_id = sub_app_id
-        self.sub_mch_id = sub_mch_id
-        self.mch_key = mch_key
-        self.notify_url = notify_url
-        self.mch_type = mch_type
-        self.api_time_out = api_time_out
-        self.pay_host = pay_host
-        if logger_echo:
+        self.__app_id = app_id
+        self.__mch_id = mch_id
+        self.__sub_app_id = sub_app_id
+        self.__sub_mch_id = sub_mch_id
+        self.__mch_key = mch_key
+        self.__notify_url = notify_url
+        self.__mch_type = mch_type
+        self.__api_time_out = api_time_out
+        self.__pay_host = pay_host
+        self.__logger_echo = logger_echo
+        if self.__logger_echo:
             set_logger()
         self.__check_common()
         logger.info('微信支付实例化完成')
@@ -169,32 +170,32 @@ class wxPay(object):
         if not check_float(fee):
             raise UpiException("输入金额有误")
         pay_detail = {
-            "appid": self.app_id,
-            "mch_id": self.mch_id,
+            "appid": self.__app_id,
+            "mch_id": self.__mch_id,
             "nonce_str": order_no,
             "body": body,
             "out_trade_no": order_no,
             "total_fee": fee,
             "spbill_create_ip": "127.0.0.1",
-            "notify_url": self.notify_url
+            "notify_url": self.__notify_url
         }
 
         if goods_tag is not None:
             pay_detail["goods_tag"] = goods_tag
         if attach is not None:
             pay_detail["attach"] = attach
-        if self.mch_type == wx_pay_enum.MERCHANT_GENERAL.value:
+        if self.__mch_type == wx_pay_enum.MERCHANT_GENERAL.value:
             # 为普通商户
             pass
-        elif self.mch_type == wx_pay_enum.MERCHANT_SERVICE.value:
+        elif self.__mch_type == wx_pay_enum.MERCHANT_SERVICE.value:
             # 服务商
-            pay_detail["sub_app_id"] = self.sub_app_id
-            pay_detail["sub_mch_id"] = self.sub_mch_id
-        elif self.mch_type == wx_pay_enum.MERCHANT_BANK.value:
+            pay_detail["sub_app_id"] = self.__sub_app_id
+            pay_detail["sub_mch_id"] = self.__sub_mch_id
+        elif self.__mch_type == wx_pay_enum.MERCHANT_BANK.value:
             # 银行商户
             raise UpiException("当前sdk不支付银行商户支付")
         res = {'pay_data': None}
-        self.request_url = "".join([self.pay_host, wx_pay_enum.PAY_URL_UNIFIED_ORDER.value])
+        self.__request_url = "".join([self.__pay_host, wx_pay_enum.PAY_URL_UNIFIED_ORDER.value])
         if apply_type in [wx_pay_enum.JS_PAY.value, wx_pay_enum.MINI_PAY.value]:
             # 公众号支持与小程序支付一致
             pay_detail['trade_type'] = wx_pay_enum.TRADE_TYPE_JS.value
@@ -243,13 +244,18 @@ class wxPay(object):
         :return:
         """
         logger.info('请求报文:{}'.format(detail))
-        logger.info('请求URL:{}'.format(self.request_url))
+        logger.info('请求URL:{}'.format(self.__request_url))
 
         xml = trans_dict_to_xml(detail)
         start_time = get_timestamp()
         # 以POST方式向微信公众平台服务器发起请求
         try:
-            response = requests.request(request_enum.POST.value, self.request_url, data=xml, timeout=self.api_time_out)
+            response = requests.request(
+                request_enum.POST.value,
+                self.__request_url,
+                data=xml,
+                timeout=self.__api_time_out
+            )
         except Exception as e:
             raise UpiException(e)
 
@@ -277,7 +283,7 @@ class wxPay(object):
         :return:
         """
         stringA = ''
-        key = self.mch_key
+        key = self.__mch_key
         ks = sorted(data_dict.keys())
         # 参数排序
         for k in ks:
@@ -297,17 +303,17 @@ class wxPay(object):
         :return:
         """
         logger.info('开始检测公共参数')
-        if self.mch_type not in [wx_pay_enum.MERCHANT_GENERAL.value, wx_pay_enum.MERCHANT_SERVICE.value,
-                                 wx_pay_enum.MERCHANT_BANK.value]:
-            raise UpiException("商户号类型输入错误,您输入的为:{}".format(self.mch_type))
-        if self.mch_type == wx_pay_enum.MERCHANT_SERVICE.value:
-            if self.sub_app_id is None:
+        if self.__mch_type not in [wx_pay_enum.MERCHANT_GENERAL.value, wx_pay_enum.MERCHANT_SERVICE.value,
+                                   wx_pay_enum.MERCHANT_BANK.value]:
+            raise UpiException("商户号类型输入错误,您输入的为:{}".format(self.__mch_type))
+        if self.__mch_type == wx_pay_enum.MERCHANT_SERVICE.value:
+            if self.__sub_app_id is None:
                 raise UpiException("服务商商户sub_app_id必传")
-            if self.sub_mch_id is None:
+            if self.__sub_mch_id is None:
                 raise UpiException("服务商商户sub_mch_id必传")
-        if self.mch_type == wx_pay_enum.MERCHANT_BANK.value:
+        if self.__mch_type == wx_pay_enum.MERCHANT_BANK.value:
             raise UpiException("当前sdk不支付银行商户支付")
         # 检测回调地址是否合法
-        if not is_url(self.notify_url):
+        if not is_url(self.__notify_url):
             raise UpiException("notify_url不合法")
         logger.info('检测公共参数完毕')

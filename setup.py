@@ -4,7 +4,7 @@
 @mail: linqigu@163.com
 @file: config.py
 @time: 2021/11/10 22:59
-@desc: 
+@desc: PIP 上传文件
 """
 from setuptools import setup, find_packages
 
@@ -16,7 +16,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setup(
     name='upi',
     version=__version__,
-    license='MIT',
+    license='MIT Licence',
     author="linqigu",
     author_email="linqigu@163.com",
     description="pay sdk",

@@ -25,8 +25,7 @@ class test_wx_pay(unittest.TestCase):  # 继承unittest.TestCase
             app_id=app_id,
             mch_id=mch_id,
             mch_key=mch_key,
-            notify_url=notify_url,
-            logger_echo=True
+            notify_url=notify_url
         )
 
     def test_js_pay(self):
